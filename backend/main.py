@@ -60,10 +60,10 @@ def health_check():
 
 @app.post("/summarize", response_model=SummarizeResponse)
 async def summarize(request: SummarizeRequest):
-    url = request.url.strip()
-    text = request.text.strip()
-
     MAX_TEXT_LENGTH = 50_000  # ~10x the LLM window; guards against abusive payloads
+
+    url = request.url.strip() if request.url else ""
+    text = request.text.strip() if request.text else ""
 
     if not url:
         raise HTTPException(status_code=400, detail="A URL is required.")

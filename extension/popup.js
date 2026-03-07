@@ -69,6 +69,17 @@ summarizeBtn.addEventListener("click", async () => {
             throw new Error("Couldn't find the active tab. Please try again.");
         }
 
+        // 1.5. Check if it's a restricted URL (chrome://, edge://, Chrome Web Store)
+        if (
+            tab.url.startsWith("chrome://") ||
+            tab.url.startsWith("edge://") ||
+            tab.url.startsWith("about:") ||
+            tab.url.includes("chrome.google.com/webstore") ||
+            tab.url.includes("chromewebstore.google.com")
+        ) {
+            throw new Error("Cannot summarize browser pages or the extensions gallery.");
+        }
+
         // 2. Inject content.js to scrape page text
         const injectionResults = await chrome.scripting.executeScript({
             target: { tabId: tab.id },
