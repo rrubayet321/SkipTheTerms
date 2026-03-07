@@ -181,3 +181,7 @@ Covers: health check, input validation (empty URL, empty text, oversized payload
 ## License
 
 [MIT](LICENSE)
+
+---
+
+Built by [Rubayet Hassan](https://github.com/rrubayet321)
