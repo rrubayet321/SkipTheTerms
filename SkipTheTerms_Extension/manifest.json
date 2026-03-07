@@ -1,0 +1,14 @@
+{
+    "manifest_version": 3,
+    "name": "SkipTheTerms",
+    "version": "1.0.0",
+    "description": "Instantly summarize Terms of Service and Privacy Policies with sarcastic bullet points.",
+    "permissions": [
+        "activeTab",
+        "scripting"
+    ],
+    "action": {
+        "default_popup": "popup.html",
+        "default_title": "SkipTheTerms"
+    }
+}
