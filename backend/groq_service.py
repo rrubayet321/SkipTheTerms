@@ -6,6 +6,9 @@ load_dotenv()
 
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
+if not GROQ_API_KEY:
+    raise ValueError("GROQ_API_KEY must be set in the .env file.")
+
 client = OpenAI(
     api_key=GROQ_API_KEY,
     base_url="https://api.groq.com/openai/v1",

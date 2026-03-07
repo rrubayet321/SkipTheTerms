@@ -11,11 +11,13 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# Allow all origins so the Chrome extension can reach this server
+# Allow all origins so the Chrome extension can reach this server.
+# allow_credentials must be False when allow_origins=["*"] — the CORS spec
+# forbids credentialed requests with a wildcard origin.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -61,10 +63,17 @@ async def summarize(request: SummarizeRequest):
     url = request.url.strip()
     text = request.text.strip()
 
+    MAX_TEXT_LENGTH = 50_000  # ~10x the LLM window; guards against abusive payloads
+
     if not url:
         raise HTTPException(status_code=400, detail="A URL is required.")
     if not text:
         raise HTTPException(status_code=400, detail="Terms text cannot be empty.")
+    if len(text) > MAX_TEXT_LENGTH:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Text payload exceeds the {MAX_TEXT_LENGTH:,} character limit.",
+        )
 
     # 1. Check the cache first
     try:
