@@ -56,7 +56,7 @@ function escapeHtml(str) {
 summarizeBtn.addEventListener("click", async () => {
     // Reset UI state
     hideError();
-    resultsArea.classList.add("hidden");
+    resultsArea.classList.remove("visible");
     resultsArea.innerHTML = "";
     showSpinner();
     summarizeBtn.disabled = true;
@@ -82,14 +82,30 @@ summarizeBtn.addEventListener("click", async () => {
         }
 
         // 3. Send scraped text to FastAPI backend
-        const response = await fetch(BACKEND_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                url: tab.url,
-                text: pageText,
-            }),
-        });
+        // Use AbortController to enforce a 15s timeout — without this the fetch
+        // hangs forever if the backend is not running.
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15_000);
+
+        let response;
+        try {
+            response = await fetch(BACKEND_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    url: tab.url,
+                    text: pageText,
+                }),
+                signal: controller.signal,
+            });
+        } catch (fetchErr) {
+            if (fetchErr.name === "AbortError") {
+                throw new Error("Backend didn't respond in time. Is `uvicorn` running in the `/backend` folder?");
+            }
+            throw new Error("Can't reach the backend. Make sure uvicorn is running: cd backend && uvicorn main:app --reload");
+        } finally {
+            clearTimeout(timeoutId);
+        }
 
         if (!response.ok) {
             const errData = await response.json().catch(() => ({}));

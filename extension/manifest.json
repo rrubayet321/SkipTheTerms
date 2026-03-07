@@ -5,7 +5,12 @@
     "description": "Instantly summarize Terms of Service and Privacy Policies with sarcastic bullet points.",
     "permissions": [
         "activeTab",
-        "scripting"
+        "scripting",
+        "tabs"
+    ],
+    "host_permissions": [
+        "http://localhost:8000/*",
+        "<all_urls>"
     ],
     "action": {
         "default_popup": "popup.html",
